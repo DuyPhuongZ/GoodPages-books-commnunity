@@ -1,14 +1,8 @@
 import express from 'express';
+import { signInController } from '../controllers/auth.controller';
 
 const authRoute = express.Router();
 
-authRoute.get("/sign-in", (req, res) => {
-    res.status(200).json({
-        statusCode: 200,
-        success: true,
-        data: null,
-        error: null
-    });
-});
+authRoute.get("/sign-in", signInController);
 
 export default authRoute;
