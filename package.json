@@ -12,10 +12,12 @@
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.0.1",
     "@prisma/client": "^7.0.1",
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.5",
     "@types/node": "^24.10.1",
     "prisma": "^7.0.1",

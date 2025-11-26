@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { signInByUsername, signUp } from "../services/auth.service";
+import { comparePassword, hashPassword } from "../utils/bcrypt.util";
 
 
 const signUpController = async (req: Request, res: Response) => {
@@ -11,10 +12,12 @@ const signUpController = async (req: Request, res: Response) => {
         throw new Error("Password and Confirm Password is not matched");
     }
 
+    let hashedPassword = await hashPassword(password);
+
     const user = await signUp({
         username,
         email,
-        password
+        password: hashedPassword
     });
 
     return res.status(201).json({
@@ -39,7 +42,9 @@ const signInController = async (req: Request, res: Response) => {
         throw new Error("Username is not existed");
     }
 
-    if (userFound.password != password) {
+    let isPasswordMatched = comparePassword(password, userFound.password);
+
+    if (!isPasswordMatched) {
         throw new Error("Password is not incorrect");
     }
 

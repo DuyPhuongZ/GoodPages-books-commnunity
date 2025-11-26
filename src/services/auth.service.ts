@@ -25,7 +25,7 @@ const signInByUsername = async (username: string) => {
         where: {
             username
         }
-    })
+    });
     return foundUser;
 }
 
