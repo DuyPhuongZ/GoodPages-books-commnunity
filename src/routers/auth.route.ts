@@ -1,8 +1,11 @@
 import express from 'express';
-import { signInController } from '../controllers/auth.controller';
+import { signInController, signUpController } from '../controllers/auth.controller';
+import { signUpMiddleware } from '../middlewares/signUp.middleware';
+import { signInMiddleware } from '../middlewares/signin.middleware';
 
 const authRoute = express.Router();
 
-authRoute.get("/sign-in", signInController);
+authRoute.post("/sign-up", signUpMiddleware, signUpController);
+authRoute.post("/sign-in", signInMiddleware, signInController);
 
 export default authRoute;
