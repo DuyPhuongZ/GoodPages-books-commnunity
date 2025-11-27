@@ -15,7 +15,14 @@ const signUp = async ({
             username,
             email,
             password,
-            role: "User",
+            role: {
+                connect: {
+                    roleName: "READER"
+                }
+            }
+        },
+        include: {
+            role: true
         }
     });
     return newUser;

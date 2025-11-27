@@ -21,9 +21,25 @@ model User {
   password   String
   avatar_url String?
   bio        String?
-  role       String
+  role       Role     @relation(fields: [roleId], references: [id])
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+  roleId     Int
 
   @@map("user")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  roleName    RoleName @unique @map("role_name")
+  description String
+  users       User[]
+
+  @@map("role")
+}
+
+enum RoleName {
+  ADMIN
+  READER
+  AUTHOR
 }

@@ -2,7 +2,7 @@ import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import type { StringValue } from "ms";
 
 const signToken = (payload: any, expiresIn: StringValue | Number) => {
-    jwt.sign(payload,
+    return jwt.sign(payload,
         "duyphuongz" as Secret,
         {
             expiresIn: expiresIn,

@@ -1,12 +1,26 @@
 import { Request, Response } from "express";
 import { signAccessToken, signInByUsername, signRefreshToken, signUp } from "../services/auth.service";
 import { comparePassword, hashPassword } from "../utils/bcrypt.util";
+import { findUserByEmail, findUserByUsername } from "../services/user.service";
+import { signUpMapper } from "../mapper/sign-up.mapper";
+import { responseMapper } from "../mapper/rest-response.mapper";
+import { signInMapper } from "../mapper/sign-in.mapper";
 
 
 const signUpController = async (req: Request, res: Response) => {
     const { username, email, password, confirmPassword } = req.body;
     console.log(">>> username:", username);
     console.log(">> password:", password);
+
+    const isUsernamExisted = await findUserByUsername(username);
+    if (isUsernamExisted != null) {
+        throw new Error("Username has been used");
+    }
+
+    const isEmailExisted = await findUserByEmail(username);
+    if (isEmailExisted != null) {
+        throw new Error("Email has been used");
+    }
 
     if (password != confirmPassword) {
         throw new Error("Password and Confirm Password is not matched");
@@ -23,16 +37,17 @@ const signUpController = async (req: Request, res: Response) => {
     const accessToken = signAccessToken(user);
     const refreshToken = signRefreshToken(user);
 
-    return res.status(201).json({
+    const responseData = signUpMapper(user, accessToken, refreshToken);
+
+    const response = {
         statusCode: 201,
-        success: true,
+        isSuccess: true,
         message: "SIGN UP SUCCESSFULLY",
-        data: {
-            accessToken: accessToken,
-            refreshToken: refreshToken
-        },
+        data: responseData,
         error: null
-    })
+    }
+
+    return res.status(201).json(responseMapper(response));
 }
 
 const signInController = async (req: Request, res: Response) => {
@@ -54,16 +69,15 @@ const signInController = async (req: Request, res: Response) => {
     const accessToken = signAccessToken(userFound);
     const refreshToken = signRefreshToken(userFound);
 
-    return res.status(200).json({
+    const responseData = signInMapper(userFound, accessToken, refreshToken);
+
+    return res.status(200).json(responseMapper({
         statusCode: 200,
-        success: true,
+        isSuccess: true,
         message: "SIGN IN SUCCESSFULLY",
-        data: {
-            accessToken: accessToken,
-            refreshToken: refreshToken
-        },
+        data: responseData,
         error: null
-    });
+    }));
 }
 
 export {
