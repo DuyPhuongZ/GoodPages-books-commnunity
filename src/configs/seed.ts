@@ -3,7 +3,7 @@ import prisma from "./prisma.client.config";
 
 
 export async function seed() {
-    console.log("🔄 Running seed...");
+    console.log(">>> Running seed...");
 
     /**
      * ==========================
@@ -71,7 +71,6 @@ export async function seed() {
                     email: "admin@example.com",
                     name: "Main Admin",
                     password: "123456", // TODO: hash password khi dùng thực tế
-                    avatar_url: null,
                     bio: "System administrator",
                     roleId: adminRole.id,
                 },
@@ -80,7 +79,6 @@ export async function seed() {
                     email: "author1@example.com",
                     name: "First Author",
                     password: "123456",
-                    avatar_url: null,
                     bio: "Content creator",
                     roleId: authorRole.id,
                 },
@@ -89,7 +87,6 @@ export async function seed() {
                     email: "reader1@example.com",
                     name: "First Reader",
                     password: "123456",
-                    avatar_url: null,
                     bio: "Just reading stuff",
                     roleId: readerRole.id,
                 },

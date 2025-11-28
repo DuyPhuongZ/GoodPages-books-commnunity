@@ -1,11 +1,12 @@
 import express from 'express';
-import { forgotPasswordController, signInController, signUpController } from '../controllers/auth.controller';
-import { forgotPasswordMiddleware, signInMiddleware, signUpMiddleware } from '../middlewares/auth.middleware';
+import { changePasswordController, signInController, signUpController } from '../controllers/auth.controller';
+import { changePasswordMiddleware, signInMiddleware, signUpMiddleware } from '../middlewares/auth.middleware';
+import passport from 'passport';
 
 const authRoute = express.Router();
 
 authRoute.post("/sign-up", signUpMiddleware, signUpController);
 authRoute.post("/sign-in", signInMiddleware, signInController);
-authRoute.post("/forgot-password", forgotPasswordMiddleware, forgotPasswordController);
+authRoute.post("/change-password", passport.authenticate("jwt", { session: false }), changePasswordMiddleware, changePasswordController);
 
 export default authRoute;

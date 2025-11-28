@@ -1,6 +1,6 @@
 import z from "zod";
 
-const forgotPasswordSchema = z.object({
+const changePasswordSchema = z.object({
     oldPassword: z.string()
         .min(6, "Password must be at least 6 characters")
         .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
@@ -20,5 +20,5 @@ const forgotPasswordSchema = z.object({
 });
 
 export {
-    forgotPasswordSchema
+    changePasswordSchema
 }

@@ -14,19 +14,42 @@ datasource db {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique
-  email      String   @unique
+  id         Int     @id @default(autoincrement())
+  username   String  @unique
   name       String?
-  password   String
-  avatar_url String?
+  email      String  @unique
   bio        String?
-  role       Role     @relation(fields: [roleId], references: [id])
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
-  roleId     Int
+  password   String
+  avartarUrl String? @map("avatar_url")
 
-  @@map("user")
+  // Quan hệ ngược với Author
+  authorProfile Author?
+
+  // Quan hệ khác trong hệ thống
+  reviews   Review[]
+  favorites Favorite[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  role      Role?    @relation(fields: [roleId], references: [id])
+  roleId    Int?
+}
+
+model Author {
+  id       Int     @id @default(autoincrement())
+  name     String
+  bio      String?
+  photoUrl String? @map("photo_url")
+
+  // Quan hệ với User (optional, để sau dùng khi tác giả muốn claim profile)
+  userId Int?  @unique
+  user   User? @relation(fields: [userId], references: [id])
+
+  // Quan hệ với Book (many-to-many implicit)
+  books Book[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 }
 
 model Role {
@@ -42,4 +65,88 @@ enum RoleName {
   ADMIN
   READER
   AUTHOR
+}
+
+model Book {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String? // mô tả sách
+  publishDate DateTime? @map("publish_date")
+  language    String
+  pageCount   Int?      @map("page_count")
+
+  // ISBN
+  isbn10 String? @unique
+  isbn13 String? @unique
+
+  // Thông tin xuất bản
+  publisher String? // nhà xuất bản
+  format    BookFormat? // HARDCOVER, PAPERBACK, ...
+
+  // Thống kê review / rating
+  averageRating Float @default(0) @map("average_rating")
+  ratingsCount  Int   @default(0) @map("ratings_count")
+  reviewsCount  Int   @default(0) @map("reviews_count")
+
+  coverImageUrl String? @map("cover_image_url")
+
+  // Quan hệ
+  authors     Author[] // nhiều tác giả
+  reviews     Review[] // nhiều review
+  favoritedBy Favorite[] // user nào đã 'favorite' sách này
+  categories  Genre[]    @relation("BookGenres") // thể loại
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+enum BookFormat {
+  HARDCOVER
+  PAPERBACK
+  EBOOK
+  AUDIOBOOK
+}
+
+model Genre {
+  id          Int    @id @default(autoincrement())
+  genresName  String @unique @map("genres_name")
+  description String
+
+  books Book[] @relation("BookGenres")
+}
+
+model Favorite {
+  // Quan hệ
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  book   Book @relation(fields: [bookId], references: [id])
+  bookId Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Một user chỉ được "favorite" 1 lần cho 1 cuốn sách
+  @@id([userId, bookId])
+}
+
+model Review {
+  id      Int     @id @default(autoincrement())
+  title   String?
+  content String?
+  rating  Int     @default(0)
+
+  hasSpoiler Boolean @default(false)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Quan hệ
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  book   Book @relation(fields: [bookId], references: [id])
+  bookId Int
+
+  @@unique([userId, bookId])
+  @@map("review")
 }

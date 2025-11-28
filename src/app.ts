@@ -6,12 +6,12 @@ import { seed } from "./configs/seed";
 const app = express();
 const PORT = 3000;
 
-passport.initialize();
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 seed();
+
+app.use(passport.initialize());
 
 router(app);
 

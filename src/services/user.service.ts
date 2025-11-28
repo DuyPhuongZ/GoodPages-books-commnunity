@@ -9,6 +9,18 @@ const findUserByUsername = async (username: string) => {
     return userFound;
 };
 
+const findUserWithRoleByUsername = async (username: string) => {
+    const userFound = await prisma.user.findUnique({
+        where: {
+            username
+        },
+        include: {
+            role: true
+        }
+    });
+    return userFound;
+};
+
 const findUserByEmail = async (email: string) => {
     const userFound = await prisma.user.findUnique({
         where: {
@@ -32,6 +44,7 @@ const updatePasswordOfUser = async (password: string, username: string) => {
 
 export {
     findUserByUsername,
+    findUserWithRoleByUsername,
     findUserByEmail,
     updatePasswordOfUser
 }

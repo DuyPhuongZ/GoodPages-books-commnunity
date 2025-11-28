@@ -1,6 +1,5 @@
 import prisma from "../configs/prisma.client.config"
 import { signToken } from "../utils/jwt.util";
-import { getVietnamTimeISO } from "../utils/time.utils";
 
 const signUp = async ({
     username,
@@ -21,8 +20,6 @@ const signUp = async ({
                     roleName: "READER"
                 }
             },
-            createdAt: getVietnamTimeISO(),
-            updatedAt: getVietnamTimeISO()
         },
         include: {
             role: true
@@ -35,6 +32,9 @@ const signInByUsername = async (username: string) => {
     const foundUser = await prisma.user.findUnique({
         where: {
             username
+        },
+        include: {
+            role: true
         }
     });
     return foundUser;

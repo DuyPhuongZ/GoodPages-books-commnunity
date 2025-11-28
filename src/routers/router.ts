@@ -1,9 +1,10 @@
 import express, { Express } from 'express';
 import authRoute from './auth.route';
-const webRoute = express.Router();
+import bookRoute from './book.route';
 
 const router = (app: Express) => {
     app.use("/auth", authRoute);
+    app.use("/book", bookRoute);
 }
 
 export default router; 

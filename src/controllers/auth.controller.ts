@@ -82,10 +82,20 @@ const signInController = async (req: Request, res: Response) => {
 }
 
 const changePasswordController = async (req: Request, res: Response) => {
-    const { username, password } = req.user as User;
+    console.log(">>> [changePasswordController] came");
+    const { username } = req.user as User;
+    console.log(">>> req.user:", req.user);
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
+    console.log(">>> req.body:", req.body);
 
-    const isOldPasswordMatched = comparePassword(oldPassword, password);
+    const userFound = await findUserByUsername(username);
+
+    if (userFound == null) {
+        throw new Error(">>> User is not existed");
+    }
+
+    const isOldPasswordMatched = await comparePassword(oldPassword, userFound.password);
+
     if (!isOldPasswordMatched) {
         throw new Error("Old password is not matched together");
     }
