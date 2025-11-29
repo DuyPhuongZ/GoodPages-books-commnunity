@@ -278,10 +278,6 @@ Dự án sử dụng **Zod** để validate request data:
 
 ISC
 
-## 🤝 Đóng góp
-
-Mọi đóng góp đều được chào đón! Vui lòng tạo issue hoặc pull request.
-
 ---
 
 **Lưu ý**: Đây là dự án đang trong quá trình phát triển. Một số tính năng có thể chưa hoàn thiện.
