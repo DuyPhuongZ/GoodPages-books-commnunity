@@ -3,7 +3,7 @@ import { BookFormat } from "../generated/prisma/enums";
 
 const getBooksPaging = async (skip: number, limit: number) => {
     try {
-        const books = prisma.book.findMany({
+        const books = await prisma.book.findMany({
             skip,
             take: limit,
             orderBy: {
@@ -18,7 +18,7 @@ const getBooksPaging = async (skip: number, limit: number) => {
 
 const getBooks = async () => {
     try {
-        return prisma.book.findMany();
+        return await prisma.book.findMany();
     } catch (error) {
         throw error;
     }
@@ -39,7 +39,7 @@ const getBooksWithAuthorsAndGenres = async () => {
 
 const getBooksWithAuthors = async () => {
     try {
-        return prisma.book.findMany({
+        return await prisma.book.findMany({
             include: {
                 authors: true
             }
@@ -51,7 +51,7 @@ const getBooksWithAuthors = async () => {
 
 const getBooksWithGenres = async () => {
     try {
-        return prisma.book.findMany({
+        return await prisma.book.findMany({
             include: {
                 genres: true
             }
@@ -89,7 +89,7 @@ const addBook = async ({
     genresId: number[]
 }) => {
     try {
-        const newBook = prisma.book.create({
+        const newBook = await prisma.book.create({
             data: {
                 title,
                 description,
@@ -133,11 +133,119 @@ const addBook = async ({
     }
 }
 
+const updateBook = async ({
+    bookId,
+    title,
+    description,
+    publishDate,
+    language,
+    pageCount,
+    isbn10,
+    isbn13,
+    publisher,
+    format,
+    authorsId,
+    genresId
+}: {
+    bookId: number
+    title: string,
+    description: string,
+    publishDate: string,
+    language: string,
+    pageCount: string,
+    isbn10: string,
+    isbn13: string,
+    publisher: string,
+    format: BookFormat,
+    authorsId: number[],
+    genresId: number[]
+}) => {
+    try {
+        const newBook = await prisma.book.update({
+            where: {
+                id: bookId
+            },
+            data: {
+                title,
+                description,
+                publishDate,
+                language,
+                pageCount: Number(pageCount),
+                isbn10,
+                isbn13,
+                publisher,
+                format,
+                authors: {
+                    connect: authorsId.map((id) => {
+                        return { id }
+                    })
+                },
+                genres: {
+                    connect: genresId.map((id) => ({ id }))
+                }
+            },
+            include: {
+                authors: {
+                    select: {
+                        id: true,
+                        name: true,
+                        photoUrl: true
+                    }
+                },
+                genres: {
+                    select: {
+                        id: true,
+                        genresName: true
+                    }
+                }
+            }
+        });
+
+        return newBook;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const updateBookImageUrl = async (bookId: number, url: string) => {
+    try {
+        const result = await prisma.book.update({
+            where: {
+                id: bookId
+            },
+            data: {
+                coverImageUrl: url
+            },
+            include: {
+                authors: {
+                    select: {
+                        id: true,
+                        name: true,
+                        photoUrl: true
+                    }
+                },
+                genres: {
+                    select: {
+                        id: true,
+                        genresName: true
+                    }
+                }
+            }
+        });
+
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export {
     getBooksPaging,
     getBooks,
     getBooksWithAuthorsAndGenres,
     getBooksWithAuthors,
     getBooksWithGenres,
-    addBook
+    addBook,
+    updateBook,
+    updateBookImageUrl
 }

@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import signInSchema from "../validations/signin.schema";
-import signUpSchema from "../validations/signup.schema";
-import { changePasswordSchema } from "../validations/forgotpassword.schema";
+import { changePasswordSchema, signInSchema, signUpSchema } from "../validations/auth.schema";
 
 const signInMiddleware = (req: Request, res: Response, next: NextFunction) => {
     try {

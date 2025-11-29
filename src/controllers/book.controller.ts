@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { addBook, getBooks, getBooksPaging } from "../services/book.service";
+import { addBook, getBooks, getBooksPaging, updateBook, updateBookImageUrl } from "../services/book.service";
 import { booksPagingMapper, bookWithAuthorAndGenresMapper } from "../mappers/book.mapper";
 import HTTP_STATUS from "../constants/httpStatus.constanst";
 import { responseMapper } from "../mappers/rest-response.mapper";
@@ -77,15 +77,7 @@ const getBooksPagingController = async (req: Request, res: Response) => {
 
 const createBookController = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let filePath = "";
         let imageCloudUrl = "Image not found on cloud";
-        if (req.file) {
-            filePath = req.file.path;
-
-            fs.unlink(filePath, (err) => {
-                if (err) console.error('Error deleting local file:', err);
-            });
-        }
 
         const {
             title,
@@ -137,6 +129,16 @@ const createBookController = async (req: Request, res: Response, next: NextFunct
         }
 
         const result = await addBook(newBook);
+
+        let filePath = "";
+        if (req.file) {
+            filePath = req.file.path;
+
+            fs.unlink(filePath, (err) => {
+                if (err) console.error('Error deleting local file:', err);
+            });
+        };
+
         const responseData = bookWithAuthorAndGenresMapper(result);
 
         return res.status(HTTP_STATUS.CREATED).json(responseMapper({
@@ -151,8 +153,89 @@ const createBookController = async (req: Request, res: Response, next: NextFunct
     }
 }
 
+const updateBookController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const {
+            id,
+            title,
+            description,
+            publishDate,
+            language,
+            pageCount,
+            isbn10,
+            isbn13,
+            publisher,
+            format,
+            authorsIdRaw,
+            genresIdRaw
+        } = req.body;
+
+        let authorsId: number[] = []; //['1','2','3'] || "1,2,3"
+
+        if (Array.isArray(authorsIdRaw)) {
+            authorsId = authorsIdRaw.map((item) => {
+                return Number(item);
+            })
+        } else if (typeof authorsIdRaw === "string") {
+            authorsId = authorsIdRaw.split(',').map((item) => Number(item.trim()));
+        }
+
+        let genresId: number[] = [];
+
+        if (Array.isArray(genresIdRaw)) {
+            genresId = genresIdRaw.map((item) => {
+                return Number(item);
+            })
+        } else if (typeof genresIdRaw === "string") {
+            genresId = genresIdRaw.split(',').map((item) => Number(item.trim()));
+        }
+
+        const updatedBook = {
+            bookId: id,
+            title,
+            description,
+            publishDate,
+            language,
+            pageCount,
+            isbn10,
+            isbn13,
+            publisher,
+            format,
+            authorsId,
+            genresId
+        }
+
+        let result = await updateBook(updatedBook);
+
+        if (req.file) {
+            let filePath = "";
+            let uploadImageUrl = "";
+            filePath = req.file.path;
+
+            fs.unlink(filePath, (err) => {
+                if (err) console.error('Error deleting local file:', err);
+            });
+
+            result = await updateBookImageUrl(result.id, uploadImageUrl);
+        };
+
+        const responseData = bookWithAuthorAndGenresMapper(result);
+
+        return res.status(HTTP_STATUS.CREATED).json(responseMapper({
+            statusCode: HTTP_STATUS.CREATED,
+            isSuccess: true,
+            message: "UPDATED BOOK SUCCESSFULLY",
+            data: responseData,
+            error: null
+        }))
+    } catch (error) {
+        throw error;
+    }
+}
+
 export {
     getBooksHomepage,
     getBooksPagingController,
-    createBookController
+    createBookController,
+    updateBookController
 }
