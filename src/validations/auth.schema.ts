@@ -41,8 +41,13 @@ const changePasswordSchema = z.object({
 
 });
 
+const deleteBookSchema = z.object({
+    bookId: z.string().min(1, "BookId is required")
+})
+
 export {
     signUpSchema,
     signInSchema,
-    changePasswordSchema
+    changePasswordSchema,
+    deleteBookSchema
 }

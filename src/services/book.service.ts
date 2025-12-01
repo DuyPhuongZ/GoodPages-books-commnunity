@@ -1,5 +1,5 @@
 import prisma from "../configs/prisma.client.config";
-import { BookFormat } from "../generated/prisma/enums";
+import { BookFormat, BookStatus } from "../generated/prisma/enums";
 
 const getBooksPaging = async (skip: number, limit: number) => {
     try {
@@ -239,6 +239,89 @@ const updateBookImageUrl = async (bookId: number, url: string) => {
     }
 }
 
+const deleteBookByBookId = async (bookId: number) => {
+    try {
+        const result = await prisma.book.delete({
+            where: {
+                id: bookId
+            }
+        });
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const searchBook = async ({
+    keyword,
+    skip,
+    limit,
+    sort,
+    searchByTarget,
+    sortByTarget,
+    bookStatus
+}: {
+    keyword: string,
+    skip: number,
+    limit: number,
+    sort: string,
+    searchByTarget: string,
+    sortByTarget: string,
+    bookStatus: BookStatus
+}) => {
+    try {
+        const result = await prisma.book.findMany({
+            where: {
+                [searchByTarget]: {
+                    contains: keyword
+                },
+                status: bookStatus
+            },
+            skip,
+            take: limit,
+            orderBy: {
+                [sortByTarget]: sort
+            }
+        })
+        console.log(">>> [searchBook] result:", result);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const searchBookSize = async ({
+    keyword,
+    skip,
+    limit,
+    sort,
+    searchByTarget,
+    sortByTarget
+}: {
+    keyword: string,
+    skip: number,
+    limit: number,
+    sort: string,
+    searchByTarget: string,
+    sortByTarget: string
+}) => {
+    try {
+        const result = await prisma.book.findMany({
+            where: {
+                [searchByTarget]: {
+                    contains: keyword
+                }
+            },
+            orderBy: {
+                [sortByTarget]: sort
+            }
+        })
+        return result.length;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export {
     getBooksPaging,
     getBooks,
@@ -247,5 +330,8 @@ export {
     getBooksWithGenres,
     addBook,
     updateBook,
-    updateBookImageUrl
+    updateBookImageUrl,
+    deleteBookByBookId,
+    searchBook,
+    searchBookSize
 }

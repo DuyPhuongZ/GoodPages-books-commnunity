@@ -96,8 +96,9 @@ model Book {
   favoritedBy Favorite[] // user nào đã 'favorite' sách này
   genres      Genre[]    @relation("BookGenres") // thể loại
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  status    BookStatus @default(DRAFT)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
 }
 
 enum BookFormat {
@@ -105,6 +106,12 @@ enum BookFormat {
   PAPERBACK
   EBOOK
   AUDIOBOOK
+}
+
+enum BookStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 model Genre {

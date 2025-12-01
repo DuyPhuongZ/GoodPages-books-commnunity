@@ -1,10 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import { addBook, getBooks, getBooksPaging, updateBook, updateBookImageUrl } from "../services/book.service";
+import { addBook, getBooks, getBooksPaging, searchBook, searchBookSize, updateBook, updateBookImageUrl } from "../services/book.service";
 import { booksPagingMapper, bookWithAuthorAndGenresMapper } from "../mappers/book.mapper";
 import HTTP_STATUS from "../constants/httpStatus.constanst";
 import { responseMapper } from "../mappers/rest-response.mapper";
 import fs from 'fs';
 import { MetaPaging } from "../responseDtos/meta.dto";
+import prisma from "../configs/prisma.client.config";
+import { BookStatus } from "../generated/prisma/enums";
+import { searchBookSchema } from "../validations/book.schema";
+import z from "zod";
 
 const getBooksHomepage = async (req: Request, res: Response) => {
     try {
@@ -155,8 +159,8 @@ const createBookController = async (req: Request, res: Response, next: NextFunct
 
 const updateBookController = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const bookId = req.params.bookId;
         const {
-            id,
             title,
             description,
             publishDate,
@@ -191,7 +195,7 @@ const updateBookController = async (req: Request, res: Response, next: NextFunct
         }
 
         const updatedBook = {
-            bookId: id,
+            bookId: Number(bookId),
             title,
             description,
             publishDate,
@@ -233,9 +237,89 @@ const updateBookController = async (req: Request, res: Response, next: NextFunct
     }
 }
 
+const deleteBookController = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { bookId } = req.params;
+        const result = await prisma.book.update({
+            where: {
+                id: Number(bookId)
+            },
+            data: {
+                status: BookStatus.ARCHIVED
+            }
+        })
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+const searchBookController = async (req: Request, res: Response) => {
+    try {
+        console.log(">>> [searchBookController] req.query:", req.query);
+        if (req.validatedQuery == undefined) {
+            throw new Error("validatedQuery is required, assure middlewares works properly");
+        }
+        console.log(">>> [searchBookController] req.validatedQuery:", req.validatedQuery);
+
+        const {
+            keyword,
+            page,
+            limit,
+            sort,
+            searchByTarget,
+            sortByTarget,
+            bookStatus
+        } = req.validatedQuery;
+
+        const safePage = Number(page) <= 1 ? 1 : Number(page);
+        const safeLimit = Number(limit) <= 1 ? 10 : Number(limit);
+
+        const searchObject = {
+            keyword: (keyword + "").trim(),
+            skip: (safePage - 1) * 10,
+            limit: safeLimit,
+            sort: (sort + "").trim(),
+            searchByTarget: (searchByTarget + "").trim(),
+            sortByTarget: (sortByTarget + "").trim(),
+            bookStatus
+        };
+
+        console.log(">>> [searchBookController] searchObject:", searchObject);
+
+        const result = await searchBook(searchObject);
+
+        const totalItems = await searchBookSize(searchObject);
+        const totalPages = Math.ceil(totalItems / 10);
+
+        const meta: MetaPaging = {
+            page: safePage,
+            limit: safeLimit,
+            totalPages,
+            totalItems,
+            hasNextPage: safePage < totalPages,
+            hasPreviousPage: safePage > 1
+        };
+
+        const responseData = booksPagingMapper(result, meta);
+
+        return res.status(HTTP_STATUS.OK).json(responseMapper({
+            statusCode: HTTP_STATUS.OK,
+            isSuccess: true,
+            message: "SEARCH BOOK SUCCESSFULLY",
+            data: responseData,
+            error: null
+        }))
+    } catch (error) {
+        throw error;
+    }
+}
+
 export {
     getBooksHomepage,
     getBooksPagingController,
     createBookController,
-    updateBookController
+    updateBookController,
+    deleteBookController,
+    searchBookController
 }

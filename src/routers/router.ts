@@ -4,7 +4,7 @@ import bookRoute from './book.route';
 
 const router = (app: Express) => {
     app.use("/auth", authRoute);
-    app.use("/book", bookRoute);
+    app.use("/books", bookRoute);
 }
 
 export default router; 
