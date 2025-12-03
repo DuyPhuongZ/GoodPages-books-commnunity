@@ -31,14 +31,17 @@ const findUserByEmail = async (email: string) => {
 }
 
 const updatePasswordOfUser = async (password: string, username: string) => {
-    const updatedUser = prisma.user.update({
+    const updatedUser = await prisma.user.update({
         where: {
             username
         },
         data: {
             password
+        },
+        include: {
+            role: true
         }
-    })
+    });
     return updatedUser;
 }
 

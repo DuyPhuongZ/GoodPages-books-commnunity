@@ -1,4 +1,4 @@
-export class RestResponse<T = any, E = any> {
+export class RestResponseDTO<T = any, E = any> {
     statusCode: number;
     isSuccess: boolean;
     message: string;

@@ -1,7 +1,8 @@
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import type { StringValue } from "ms";
+import { JwtPayload } from "../type";
 
-const signToken = (payload: any, expiresIn: StringValue | Number) => {
+const signToken = (payload: JwtPayload, expiresIn: StringValue | Number) => {
     return jwt.sign(payload,
         "duyphuongz" as Secret,
         {

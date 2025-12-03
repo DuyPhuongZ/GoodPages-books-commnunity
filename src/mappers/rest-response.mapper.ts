@@ -1,4 +1,5 @@
-import { RestResponse } from "../responseDtos/rest-response.dto"
+import { RestResponseDTO } from "../responseDtos/rest-response.dto"
+import { RestResponse } from "../type";
 
 const responseMapper = (
     {
@@ -7,15 +8,9 @@ const responseMapper = (
         message,
         data,
         error
-    }: {
-        statusCode: number,
-        isSuccess: boolean,
-        message: string,
-        data: any,
-        error: any
-    }
+    }: RestResponse
 ) => {
-    return new RestResponse({
+    return new RestResponseDTO({
         statusCode,
         isSuccess,
         message,

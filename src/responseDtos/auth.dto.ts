@@ -1,5 +1,5 @@
 
-class SignInResponse {
+class SignInResponseDTO {
     username: string;
     role: string;
     accessToken: string;
@@ -24,11 +24,11 @@ class SignInResponse {
 }
 
 
-class SignUpResponse {
-    username?: string;
-    role?: string;
-    accessToken?: string;
-    refreshToken?: string;
+class SignUpResponseDTO {
+    username: string;
+    role: string;
+    accessToken: string;
+    refreshToken: string;
 
     constructor({
         username = "",
@@ -36,10 +36,10 @@ class SignUpResponse {
         accessToken = "",
         refreshToken = ""
     }: {
-        username?: string,
-        role?: string,
-        accessToken?: string,
-        refreshToken?: string
+        username: string,
+        role: string,
+        accessToken: string,
+        refreshToken: string
     }) {
         this.username = username;
         this.role = role;
@@ -49,7 +49,7 @@ class SignUpResponse {
 }
 
 
-class ChangePasswordResponse {
+class ChangePasswordResponseDTO {
     accessToken: string;
     refreshToken: string;
 
@@ -66,7 +66,7 @@ class ChangePasswordResponse {
 }
 
 export {
-    SignInResponse,
-    SignUpResponse,
-    ChangePasswordResponse
+    SignInResponseDTO,
+    SignUpResponseDTO,
+    ChangePasswordResponseDTO
 }

@@ -1,4 +1,5 @@
 import prisma from "../configs/prisma.client.config"
+import { UserWithRole } from "../type";
 import { signToken } from "../utils/jwt.util";
 
 const signUp = async ({
@@ -10,50 +11,58 @@ const signUp = async ({
     password: string,
     email: string
 }) => {
-    const newUser = await prisma.user.create({
-        data: {
-            username,
-            email,
-            password,
-            role: {
-                connect: {
-                    roleName: "READER"
-                }
+    try {
+        const newUser = await prisma.user.create({
+            data: {
+                username,
+                email,
+                password,
+                role: {
+                    connect: {
+                        roleName: "READER"
+                    }
+                },
             },
-        },
-        include: {
-            role: true
-        }
-    });
-    return newUser;
+            include: {
+                role: true
+            }
+        });
+        return newUser;
+    } catch (error) {
+        throw error;
+    }
 }
 
 const signInByUsername = async (username: string) => {
-    const foundUser = await prisma.user.findUnique({
-        where: {
-            username
-        },
-        include: {
-            role: true
-        }
-    });
-    return foundUser;
+    try {
+        const foundUser = await prisma.user.findUnique({
+            where: {
+                username
+            },
+            include: {
+                role: true
+            }
+        });
+        return foundUser;
+    } catch (error) {
+        throw error;
+    }
 }
 
-const signAccessToken = (user: any) => {
+const signAccessToken = (user: UserWithRole) => {
     const payload = {
         username: user.username,
-        role: user.role
-    }
+        role: user.role?.roleName || "UNAUTHORIZED"
+    };
     const accessToken = signToken(payload, "1d");
     return accessToken;
 }
 
-const signRefreshToken = (user: any) => {
+const signRefreshToken = (user: UserWithRole) => {
     const payload = {
         username: user.username,
-        role: user.role
-    }
+        role: user.role?.roleName || "UNAUTHORIZED"
+    };
     const accessToken = signToken(payload, "7d");
     return accessToken;
 }
