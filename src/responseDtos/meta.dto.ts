@@ -1,5 +1,5 @@
 
-class MetaPaging {
+class MetaPagingDTO {
     page: any;
     limit: any;
     totalItems: any;
@@ -32,5 +32,5 @@ class MetaPaging {
 }
 
 export {
-    MetaPaging
+    MetaPagingDTO
 }

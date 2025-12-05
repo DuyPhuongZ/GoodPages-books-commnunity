@@ -1,5 +1,6 @@
 import prisma from "../configs/prisma.client.config";
 import { BookFormat, BookStatus } from "../generated/prisma/enums";
+import { UpdateBookEntity } from "../type";
 
 const getBooksPaging = async (skip: number, limit: number) => {
     try {
@@ -146,20 +147,7 @@ const updateBook = async ({
     format,
     authorsId,
     genresId
-}: {
-    bookId: number
-    title: string,
-    description: string,
-    publishDate: string,
-    language: string,
-    pageCount: string,
-    isbn10: string,
-    isbn13: string,
-    publisher: string,
-    format: BookFormat,
-    authorsId: number[],
-    genresId: number[]
-}) => {
+}: UpdateBookEntity) => {
     try {
         const newBook = await prisma.book.update({
             where: {

@@ -4,11 +4,9 @@ import { booksPagingMapper, bookWithAuthorAndGenresMapper } from "../mappers/boo
 import HTTP_STATUS from "../constants/httpStatus.constanst";
 import { responseMapper } from "../mappers/rest-response.mapper";
 import fs from 'fs';
-import { MetaPaging } from "../responseDtos/meta.dto";
 import prisma from "../configs/prisma.client.config";
 import { BookStatus } from "../generated/prisma/enums";
-import { searchBookSchema } from "../validations/book.schema";
-import z from "zod";
+import { MetaPaging } from "../type";
 
 const getBooksHomepage = async (req: Request, res: Response) => {
     try {

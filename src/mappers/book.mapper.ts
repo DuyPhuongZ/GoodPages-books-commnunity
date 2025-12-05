@@ -1,31 +1,13 @@
 import { Book, Prisma } from "../generated/prisma/client";
 import { BookResponse, booksPagingResponse } from "../responseDtos/book.dto";
-import { MetaPaging } from "../responseDtos/meta.dto";
+import { BookWithAuthorsWithGenres, MetaPaging } from "../type";
 
-const booksPagingMapper = (books: any, meta: MetaPaging) => {
+const booksPagingMapper = (books: Book[], meta: MetaPaging) => {
     return new booksPagingResponse({
         books,
         meta
     });
 }
-
-type BookWithAuthorsWithGenres = Prisma.BookGetPayload<{
-    include: {
-        authors: {
-            select: {
-                id: true;
-                name: true;
-                photoUrl: true;
-            };
-        };
-        genres: {
-            select: {
-                id: true;
-                genresName: true;
-            };
-        };
-    };
-}>;
 
 const bookWithAuthorAndGenresMapper = (book: BookWithAuthorsWithGenres) => {
     const {

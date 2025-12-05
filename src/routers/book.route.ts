@@ -8,7 +8,6 @@ import { createBookMiddleware, deleteBookMiddleware, searchBookMiddleware, updat
 const bookRoute = express.Router();
 
 bookRoute.get("/homepage", getBooksHomepage);
-
 bookRoute.get("/search", searchBookMiddleware, searchBookController);
 
 //CRUD Book for admin
@@ -16,4 +15,6 @@ bookRoute.get("", getBooksPagingController);
 bookRoute.post("", passport.authenticate("jwt", { session: false }), isAdmin, upload.single("picture"), createBookMiddleware, createBookController);
 bookRoute.put("/:bookId", passport.authenticate("jwt", { session: false }), isAdmin, upload.single("picture"), updateBookMiddleware, updateBookController);
 bookRoute.delete("/:bookId", passport.authenticate("jwt", { session: false }), isAdmin, deleteBookMiddleware, deleteBookController);
+
+
 export default bookRoute;
