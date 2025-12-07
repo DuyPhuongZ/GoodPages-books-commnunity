@@ -1,88 +1,54 @@
 ## 📚 GoodPages – Social Network for Books (Backend)
 
-GoodPages là **backend service** cho một nền tảng mạng xã hội dành cho người yêu sách, cho phép:
+GoodPages là **backend service** cho một nền tảng mạng xã hội dành cho người yêu sách. 
+Dự án tập trung vào việc xây dựng **API sạch, bảo mật, dễ mở rộng**, hỗ trợ đầy đủ cho các tính năng của một cộng đồng đọc sách hiện đại.
 
-- **Đăng ký / đăng nhập / đổi mật khẩu** với JWT.
-- **Quản lý sách, tác giả, thể loại** với quan hệ many–to–many.
-- **Tìm kiếm, phân trang, lọc sách** theo nhiều tiêu chí.
-- **Phân quyền theo vai trò (Role-based Authorization)**: `ADMIN`, `AUTHOR`, `READER`.
-- **Seed dữ liệu mẫu** (roles, users, authors, genres, books) để demo nhanh.
+> **Mục tiêu**: Cung cấp nền tảng backend vững chắc để dễ dàng phát triển các ứng dụng web / mobile phục vụ review sách, gợi ý sách, quản lý thư viện cá nhân, và tương tác giữa các độc giả.
 
 ---
 
-## ✨ Tính năng chính
+## 🧩 Tóm tắt tính năng
 
-### 🔐 Xác thực & Phân quyền
-
-- Đăng ký tài khoản mới với username, email, password.
-- Đăng nhập bằng username + password, trả về **Access Token** và **Refresh Token**.
-- Đổi mật khẩu (yêu cầu đăng nhập, xác thực JWT).
-- Phân quyền theo vai trò:
-  - `ADMIN`: quản trị hệ thống, CRUD sách.
-  - `AUTHOR`: tài khoản tác giả (mở rộng sau).
-  - `READER`: người dùng đọc sách.
-
-### 📖 Quản lý sách (Books)
-
-- Xem danh sách sách với **phân trang**.
-- Xem sách cho **trang chủ** (homepage) với meta paging.
-- **Tạo / cập nhật / xóa (soft-delete)** sách (role `ADMIN`).
-- Upload ảnh bìa sách thông qua `multer` (hiện tại lưu local và xóa sau khi xử lý).
-- Mỗi sách có:
-  - Thông tin cơ bản: `title`, `description`, `publishDate`, `language`, `pageCount`.
-  - ISBN: `isbn10`, `isbn13`.
-  - Publisher, `format` (`BookFormat` enum).
-  - Thống kê: `averageRating`, `ratingsCount`, `reviewsCount`.
-  - Quan hệ nhiều–nhiều với `Author`, `Genre`.
-
-### 🔍 Tìm kiếm & Lọc
-
-- Endpoint **search book** với:
-  - `keyword`, `page`, `limit`.
-  - `sort` (`asc` / `desc`).
-  - `searchByTarget`, `sortByTarget` (title, author, publishDate, isbn10, isbn13, rating, reviews, genres).
-  - `bookStatus` (`DRAFT`, `PUBLISHED`, `ARCHIVED`).
-- Trả về dữ liệu + `meta` (phân trang).
-
-### 👤 Người dùng, Tác giả, Thể loại (trong DB)
-
-- `User`:
-  - Username, email, password (hash bằng **bcrypt** khi sign up / change password).
-  - Avatar, bio, role.
-  - Quan hệ với `Review`, `Favorite`, `Author`.
-- `Author`:
-  - Tên, bio, ảnh, quan hệ one-to-one (optional) với `User` để claim profile.
-- `Genre`:
-  - Tên thể loại, mô tả, quan hệ many–to–many với `Book`.
-- `Review` & `Favorite`:
-  - `Review`: mỗi user chỉ review 1 lần cho mỗi sách.
-  - `Favorite`: primary key là `(userId, bookId)`.
+- **Xác thực & phân quyền hiện đại**
+  - Đăng ký, đăng nhập, đổi mật khẩu bằng JWT.
+  - Phân quyền theo vai trò (`ADMIN`, `AUTHOR`, `READER`).
+- **Quản lý sách toàn diện**
+  - CRUD sách, soft-delete, quản lý trạng thái (`DRAFT`, `PUBLISHED`, `ARCHIVED`).
+  - Quản lý ISBN, thông tin xuất bản, format sách, thống kê rating / reviews.
+  - Quan hệ many–to–many với tác giả và thể loại.
+- **Tìm kiếm & phân trang**
+  - Tìm kiếm sách với keyword, filter nâng cao, sort theo nhiều tiêu chí.
+  - Phân trang có `meta` rõ ràng, tối ưu cho UI.
+- **Seed dữ liệu demo**
+  - Tự động seed roles, users, genres, authors, books để demo nhanh.
+- **Hỗ trợ Docker đầy đủ**
+  - Dev environment gần giống production với `Dockerfile` + `docker-compose`.
 
 ---
 
 ## 🛠️ Tech Stack
 
 - **Runtime & Framework**
-  - **Node.js** (v18+).
-  - **Express 5.1.0** – web framework.
-  - **TypeScript 5.9.3**.
+  - Node.js (v18+).
+  - Express 5.1.0.
+  - TypeScript 5.9.3.
 
 - **Database & ORM**
-  - **MySQL / MariaDB**.
-  - **Prisma 7.0.1** (`@prisma/client`, `@prisma/adapter-mariadb`).
+  - MySQL / MariaDB.
+  - Prisma 7.0.1 (`@prisma/client`, `@prisma/adapter-mariadb`).
 
 - **Auth & Security**
-  - **Passport.js**, **passport-jwt** – JWT strategy.
-  - **jsonwebtoken** – ký & verify JWT.
-  - **bcrypt** – hash & so sánh mật khẩu.
+  - Passport.js, passport-jwt.
+  - jsonwebtoken (JWT signing & verify).
+  - bcrypt (hash & so sánh mật khẩu).
 
 - **Validation & Upload**
-  - **Zod** – schema validation cho body / query.
-  - **Multer** – upload file (ảnh bìa sách).
+  - Zod – schema validation cho body / query.
+  - Multer – upload ảnh bìa sách.
 
 - **Dev Tools**
-  - **ts-node-dev** – chạy dev với hot reload.
-  - **TypeScript** – type checking & build.
+  - ts-node-dev – chạy môi trường dev với hot reload.
+  - TypeScript – type checking & build.
 
 ---
 
@@ -107,8 +73,6 @@ GoodPages/
 │   ├── controllers/             # Xử lý request / response
 │   │   ├── auth.controller.ts
 │   │   └── book.controller.ts
-│   ├── generated/
-│   │   └── prisma/              # Prisma Client & enums được generate
 │   ├── mappers/                 # Map dữ liệu giữa layer & DTO
 │   │   ├── auth.mapper.ts
 │   │   ├── book.mapper.ts
@@ -142,21 +106,23 @@ GoodPages/
 └── README.md
 ```
 
+Kiến trúc được tổ chức theo **layer** rõ ràng: `router → middleware → controller → service → Prisma (DB)`.
+
 ---
 
-## 🚀 Cài đặt & Chạy dự án
+## 🚀 Cài đặt & Chạy dự án (Local)
 
 ### 1. Yêu cầu hệ thống
 
-- **Node.js**: v18 hoặc cao hơn.
-- **MySQL / MariaDB** đang chạy (local hoặc remote).
-- **npm** (hoặc **yarn** nếu bạn muốn tự cấu hình).
+- Node.js: v18 hoặc cao hơn.
+- MySQL / MariaDB (local hoặc remote).
+- npm (hoặc yarn nếu tự cấu hình).
 
 ### 2. Clone source code
 
 ```bash
 git clone <repository-url>
-cd GoodPages-books-commnunity   # hoặc tên folder bạn đặt
+cd GoodPages-books-commnunity
 ```
 
 ### 3. Cài dependencies
@@ -167,7 +133,7 @@ npm install
 
 ### 4. Cấu hình môi trường
 
-Ứng dụng đang sử dụng `prisma.client.config.ts` với **MariaDB adapter**, đọc cấu hình DB từ biến môi trường:
+Ứng dụng sử dụng `prisma.client.config.ts` với MariaDB adapter, đọc cấu hình DB từ biến môi trường:
 
 ```ts
 // prisma.client.config.ts (trích)
@@ -188,7 +154,7 @@ DATABASE_PASSWORD=your_password
 DATABASE_NAME=goodpages
 ```
 
-> Lưu ý: JWT hiện tại đang dùng secret **hard-code** là `"duyphuongz"` trong `jwt.util.ts` và `passport.jwt.config.ts` (có thể nâng cấp sau để đọc từ `.env`).
+> Lưu ý: JWT hiện tại đang dùng secret **hard-code** là `"duyphuongz"` trong `jwt.util.ts` và `passport.jwt.config.ts`. Có thể cải tiến đọc từ `.env` khi lên production.
 
 ### 5. Chạy migration & generate Prisma Client
 
@@ -197,20 +163,20 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
-### 6. Seed dữ liệu (tuỳ chọn nhưng khuyến nghị)
+### 6. Seed dữ liệu (khuyến nghị)
 
 Seed sẽ:
 
-- Xoá toàn bộ dữ liệu cũ (theo đúng thứ tự tránh lỗi foreign key).
-- Reset auto-increment các bảng chính (`role`, `User`, `Genre`, `Author`, `Book`, `review`).
+- Xoá toàn bộ dữ liệu cũ (theo thứ tự tránh lỗi foreign key).
+- Reset auto-increment các bảng chính (`Role`, `User`, `Genre`, `Author`, `Book`, `Review`).
 - Seed:
   - Roles: `ADMIN`, `AUTHOR`, `READER`.
   - Users: `admin`, `author1`, `reader1`.
-  - Genres (10 thể loại phổ biến).
-  - Authors (5 tác giả).
-  - 6 cuốn sách mẫu với quan hệ authors + genres.
+  - Genres (các thể loại sách phổ biến).
+  - Authors (một số tác giả mẫu).
+  - Một số sách mẫu với quan hệ authors + genres.
 
-Seed được gọi **tự động** trong `app.ts` thông qua `seed()` mỗi lần khởi động server, nên khi chạy `npm run dev` lần đầu, DB sẽ được reset + seed:
+Seed được gọi **tự động** trong `app.ts` thông qua `seed()` mỗi lần khởi động server:
 
 ```ts
 // app.ts (trích)
@@ -223,6 +189,16 @@ Nếu muốn chạy seed độc lập:
 ts-node src/configs/seed.ts
 ```
 
+#### Tài khoản demo sau khi seed
+
+> Mật khẩu các tài khoản seed **chưa được mã hoá** trong DB (phục vụ demo / dev, KHÔNG dùng cho production).
+
+| Username | Password | Role   |
+|----------|----------|--------|
+| admin    | 123456   | ADMIN  |
+| author1  | 123456   | AUTHOR |
+| reader1  | 123456   | READER |
+
 ### 7. Chạy server
 
 ```bash
@@ -233,44 +209,118 @@ Mặc định server chạy tại: `http://localhost:3000`.
 
 ---
 
-## 📡 API Design
+## 🐳 Chạy bằng Docker & docker-compose
 
-### 1. Chuẩn RestResponse
+Dự án đã được **container hoá** với Docker, giúp khởi chạy môi trường dev/preview cực nhanh.
 
-Tất cả response đều được chuẩn hoá thông qua `RestResponse` + `responseMapper`, với cấu trúc:
+### 1. Thành phần chính
+
+- **Dockerfile**
+  - Base image: `node:22-alpine`.
+  - `WORKDIR /app`.
+  - Copy `package*.json` và `npm install`.
+  - Copy toàn bộ source code.
+  - `EXPOSE 3000`.
+  - `CMD ["npm", "run", "dev"]`.
+
+- **.dockerignore**
+  - Bỏ qua `node_modules`, `dist`, `.git`, log… để image nhỏ gọn.
+
+- **docker-compose.yml**
+  - Service `api`:
+    - `build: .` – sử dụng Dockerfile ở root.
+    - `ports: "3000:3000"`.
+    - Dùng `env_file: .env` + `environment` để ánh xạ biến môi trường DB.
+    - Mount `.:/app` (sync code với host) và `/app/node_modules` (cài node_modules trong container).
+    - `depends_on: mysql`.
+  - Service `mysql`:
+    - Image: `mysql:8`.
+    - `ports: "3307:3306"` – có thể connect từ ngoài qua cổng 3307.
+    - Dùng biến môi trường: `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`.
+    - Volume `mysql_data` để giữ data.
+
+### 2. Chuẩn bị `.env` cho Docker
+
+```env
+# Cho API (Prisma adapter)
+DATABASE_HOST=mysql
+DATABASE_PORT=3306
+DATABASE_USER=admin
+DATABASE_PASSWORD=12345
+DATABASE_NAME=goodpages_db
+
+# Cho MySQL container
+MYSQL_ROOT_PASSWORD=root_password
+MYSQL_DATABASE=goodpages_db
+MYSQL_USER=admin
+MYSQL_PASSWORD=12345
+```
+
+Trong `docker-compose.yml` có sẵn `DATABASE_URL` mẫu:
+
+```text
+mysql://admin:12345@mysql:3306/goodpages_db
+```
+
+### 3. Chạy dự án bằng Docker – 3 bước
+
+**Bước 1 – Build & khởi động toàn bộ stack**
+
+```bash
+docker-compose up --build
+```
+
+- API: `http://localhost:3000`
+- MySQL: `localhost:3307`
+
+**Bước 2 – Chạy migration & generate Prisma bên trong container**
+
+```bash
+docker-compose exec api npx prisma migrate dev
+docker-compose exec api npx prisma generate
+```
+
+**Bước 3 – Seed dữ liệu (tuỳ chọn)**
+
+```bash
+docker-compose exec api ts-node src/configs/seed.ts
+```
+
+Sau 3 bước, bạn đã có:
+
+- API chạy trong container Node.
+- MySQL 8 chạy trong container riêng, có volume persist data.
+- Schema DB đã migrate + có sẵn data demo.
+
+---
+
+## 📡 Thiết kế API (Tổng quan)
+
+### 1. Chuẩn `RestResponse`
+
+Tất cả response đều được chuẩn hoá qua `RestResponse`:
 
 ```json
 {
   "statusCode": 200,
   "isSuccess": true,
   "message": "MESSAGE",
-  "data": { /* payload */ },
+  "data": {},
   "error": null
 }
 ```
 
-### 2. Authentication (`/auth`)
+### 2. Nhóm Authentication (`/auth`)
 
 Base path: `/auth`
 
-| Method | Endpoint              | Mô tả                     | Auth | Ghi chú |
-|--------|-----------------------|---------------------------|------|--------|
-| POST   | `/auth/sign-up`       | Đăng ký tài khoản mới     | ❌   | Validate bằng `signUpSchema` |
-| POST   | `/auth/sign-in`       | Đăng nhập                 | ❌   | Validate bằng `signInSchema` |
-| POST   | `/auth/change-password` | Đổi mật khẩu            | ✅   | `passport.authenticate("jwt")` + `changePasswordSchema` |
+| Method | Endpoint                | Mô tả                 | Auth | Ghi chú                         |
+|--------|-------------------------|-----------------------|------|---------------------------------|
+| POST   | `/auth/sign-up`         | Đăng ký tài khoản     | ❌   | Validate bằng `signUpSchema`    |
+| POST   | `/auth/sign-in`         | Đăng nhập             | ❌   | Validate bằng `signInSchema`    |
+| POST   | `/auth/change-password` | Đổi mật khẩu          | ✅   | JWT + `changePasswordSchema`    |
 
-**Request body – `POST /auth/sign-up`**
-
-```json
-{
-  "username": "reader1",
-  "email": "reader1@example.com",
-  "password": "Abc@1234",
-  "confirmPassword": "Abc@1234"
-}
-```
-
-**Request body – `POST /auth/sign-in`**
+**Ví dụ payload – `POST /auth/sign-in`**
 
 ```json
 {
@@ -279,172 +329,59 @@ Base path: `/auth`
 }
 ```
 
-**Request body – `POST /auth/change-password`**  
-Yêu cầu header:
-
-```http
-Authorization: Bearer <access_token>
-```
-
-Body:
-
-```json
-{
-  "oldPassword": "Abc@1234",
-  "newPassword": "Xyz@1234",
-  "confirmNewPassword": "Xyz@1234"
-}
-```
-
-Response cho `sign-in` / `sign-up` bao gồm:
+Response trả về gồm:
 
 - Thông tin user (kèm role).
 - `accessToken` (hết hạn sau 1 ngày).
 - `refreshToken` (hết hạn sau 7 ngày).
 
-### 3. Books (`/books`)
+### 3. Nhóm Books (`/books`)
 
 Base path: `/books`
 
-| Method | Endpoint           | Mô tả                                  | Auth | Role   |
-|--------|--------------------|----------------------------------------|------|--------|
-| GET    | `/books/homepage` | Lấy danh sách sách cho trang chủ      | ❌   | -      |
-| GET    | `/books`          | Lấy danh sách sách (phân trang)       | ❌   | -      |
-| GET    | `/books/search`   | Tìm kiếm sách với filter nâng cao     | ❌   | -      |
-| POST   | `/books`          | Tạo sách mới                          | ✅   | ADMIN  |
-| PUT    | `/books/:bookId`  | Cập nhật thông tin sách               | ✅   | ADMIN  |
-| DELETE | `/books/:bookId`  | Archive (đánh dấu xoá) một cuốn sách  | ✅   | ADMIN  |
+| Method | Endpoint           | Mô tả                                 | Auth | Role   |
+|--------|--------------------|---------------------------------------|------|--------|
+| GET    | `/books/homepage` | Lấy danh sách sách cho trang chủ     | ❌   | -      |
+| GET    | `/books`          | Lấy danh sách sách (phân trang)      | ❌   | -      |
+| GET    | `/books/search`   | Tìm kiếm sách nâng cao               | ❌   | -      |
+| POST   | `/books`          | Tạo sách mới                         | ✅   | ADMIN  |
+| PUT    | `/books/:bookId`  | Cập nhật thông tin sách              | ✅   | ADMIN  |
+| DELETE | `/books/:bookId`  | Archive (đánh dấu xoá) một cuốn sách | ✅   | ADMIN  |
 
-#### 3.1. GET `/books`
-
-**Query params:**
-
-- `page`: số trang (mặc định `1`, trong code sử dụng `page - 1` để tính offset).
-- `limit`: số bản ghi mỗi trang (mặc định `10`).
-
-Ví dụ:
-
-```http
-GET /books?page=1&limit=10
-```
-
-#### 3.2. GET `/books/search`
-
-Validate bằng `searchBookSchema`.
-
-**Query params chính:**
-
-- `keyword`: chuỗi tìm kiếm (optional, mặc định `""`).
-- `page`: trang hiện tại (bắt buộc, dạng string, ví dụ `"1"`).
-- `limit`: số lượng mỗi trang (bắt buộc, dạng string).
-- `sort`: `"asc"` hoặc `"desc"` (mặc định `"asc"`).
-- `searchByTarget`: một trong `["title", "author", "publishDate", "isbn10", "isbn13", "rating", "reviews", "genres"]` (mặc định `"title"`).
-- `sortByTarget`: như `searchByTarget`.
-- `bookStatus`: `DRAFT` / `PUBLISHED` / `ARCHIVED` (mặc định `PUBLISHED`).
-
-Ví dụ:
+**Ví dụ – GET `/books/search`**
 
 ```http
 GET /books/search?keyword=harry&page=1&limit=10&sort=asc&searchByTarget=title&sortByTarget=title&bookStatus=PUBLISHED
 ```
 
-#### 3.3. POST `/books`
-
-Yêu cầu:
-
-- Header:
-
-```http
-Authorization: Bearer <access_token_cua_admin>
-Content-Type: multipart/form-data
-```
-
-- Dùng `multer.single("picture")` để upload ảnh bìa (nếu có).
-- Body (fields dạng text, có thể là JSON hoặc form fields, validate bằng `createBookSchema`):
-
-```json
-{
-  "title": "Book Title",
-  "description": "Book description",
-  "publishDate": "2024-01-01",
-  "language": "English",
-  "pageCount": "300",
-  "isbn10": "1234567890",
-  "isbn13": "9781234567890",
-  "publisher": "Publisher Name",
-  "format": "HARDCOVER",
-  "authorsIdRaw": [1, 2],        // hoặc "1,2"
-  "genresIdRaw": ["1", "2"]      // hoặc "1,2"
-}
-```
-
-`authorsIdRaw` và `genresIdRaw` có thể là:
-
-- Mảng string: `["1", "2"]`.
-- Chuỗi: `"1,2"`.
-
-Trong controller sẽ parse thành `number[]` trước khi gọi service.
-
-#### 3.4. PUT `/books/:bookId`
-
-Tương tự `POST /books`, nhưng:
-
-- Path param: `bookId` (string, sẽ được parse sang `number`).
-- Body validate bằng `updateBookSchema`.
-- Nếu có upload file, file sẽ được xoá khỏi local sau khi xử lý.
-
-#### 3.5. DELETE `/books/:bookId`
-
-- Yêu cầu `ADMIN` + JWT.
-- Middleware `deleteBookMiddleware` validate `bookId` bằng `deleteBookSchema`.
-- Thay vì xoá hẳn record, controller sẽ:
-  - Cập nhật `status` sang `BookStatus.ARCHIVED`.
-
 ---
 
-## 🗄️ Database Schema (Prisma)
+## 🗄️ Database Schema (Prisma – Tóm tắt)
 
 Các model chính trong `schema.prisma`:
 
 - **User**
-  - Fields: `id`, `username`, `email`, `password`, `bio`, `avartarUrl`, `roleId`, timestamps.
-  - Quan hệ:
-    - `authorProfile`: one-to-one tới `Author`.
-    - `reviews`: one-to-many `Review`.
-    - `favorites`: one-to-many `Favorite`.
-    - `role`: many-to-one `Role`.
-
+  - Fields: `id`, `username`, `email`, `password`, `bio`, `avatarUrl`, `roleId`, timestamps.
+  - Quan hệ: `authorProfile`, `reviews`, `favorites`, `role`.
 - **Role**
   - Enum `RoleName`: `ADMIN`, `READER`, `AUTHOR`.
-  - Bảng `role` chứa `roleName`, `description`, `users[]`.
-
+  - Bảng role chứa mô tả và danh sách users.
 - **Book**
-  - Trường chính: `title`, `description`, `publishDate`, `language`, `pageCount`, `isbn10`, `isbn13`, `publisher`, `format`, `coverImageUrl`.
+  - Trường: `title`, `description`, `publishDate`, `language`, `pageCount`, `isbn10`, `isbn13`, `publisher`, `format`, `coverImageUrl`.
   - Thống kê: `averageRating`, `ratingsCount`, `reviewsCount`.
-  - Quan hệ:
-    - `authors: Author[]`.
-    - `genres: Genre[]` (relation `"BookGenres"`).
-    - `reviews: Review[]`.
-    - `favoritedBy: Favorite[]`.
-  - `status`: enum `BookStatus` (`DRAFT`, `PUBLISHED`, `ARCHIVED`).
-
+  - Quan hệ: `authors`, `genres`, `reviews`, `favoritedBy`.
+  - Enum `BookStatus`: `DRAFT`, `PUBLISHED`, `ARCHIVED`.
 - **Author**
-  - Thông tin tác giả: `name`, `bio`, `photoUrl`, `userId`.
-  - Quan hệ với `User` (optional) & `Book[]`.
-
+  - Thông tin tác giả + quan hệ với `User` (optional) & `Book[]`.
 - **Genre**
-  - `genresName`, `description`, `books: Book[]`.
-
+  - Tên thể loại, mô tả, quan hệ many–to–many với `Book`.
 - **Favorite**
   - Khoá chính: `@@id([userId, bookId])`.
-  - Quan hệ many-to-many giữa `User` và `Book`.
-
 - **Review**
-  - Trường: `title`, `content`, `rating`, `hasSpoiler`, timestamps.
-  - Quan hệ: `user`, `book`.
-  - Constraint: `@@unique([userId, bookId])` – mỗi user chỉ review một lần cho mỗi sách.
+  - `title`, `content`, `rating`, `hasSpoiler`, timestamps.
+  - Constraint: `@@unique([userId, bookId])` – mỗi user chỉ review 1 lần / sách.
 
-Enums:
+Enums chính:
 
 - **BookFormat**: `HARDCOVER`, `PAPERBACK`, `EBOOK`, `AUDIOBOOK`.
 - **BookStatus**: `DRAFT`, `PUBLISHED`, `ARCHIVED`.
@@ -453,7 +390,7 @@ Enums:
 
 ## 🔒 Authentication & Authorization (Chi tiết)
 
-- **JWT payload** gồm:
+- **JWT payload**:
 
 ```json
 {
@@ -468,52 +405,46 @@ Enums:
   - `audience`: `"user"`.
   - `expiresIn`: `"1d"` cho access token, `"7d"` cho refresh token.
 
-- **Passport JWT Strategy**:
-  - Lấy token từ `Authorization: Bearer <token>`.
+- **Passport JWT Strategy**
+  - Lấy token từ header `Authorization: Bearer <token>`.
   - Decode, lấy `username`, tìm `User` trong DB.
   - Gắn `req.user = { username, email, role }`.
 
-- **Middlewares role**:
+- **Middlewares role**
   - `isAdmin`: chỉ cho phép nếu `role === "ADMIN"`.
   - `isAuthor`: `role === "AUTHOR"`.
   - `isUser`: `role === "READER"`.
 
 ---
 
-## 📝 Validation (Zod)
-
-- **`auth.schema.ts`**:
-  - `signUpSchema`: validate `username`, `email`, `password`, `confirmPassword` (độ mạnh mật khẩu + trùng khớp).
-  - `signInSchema`: validate `username`, `password`.
-  - `changePasswordSchema`: validate `oldPassword`, `newPassword`, `confirmNewPassword`.
-  - `deleteBookSchema`: validate `bookId` khi xoá sách.
-
-- **`book.schema.ts`**:
-  - `createBookSchema`, `updateBookSchema`: validate các field của book, parse `pageCount` từ string sang number.
-  - `searchBookSchema`: validate query của `/books/search` (keyword, page, limit, sort, searchByTarget, sortByTarget, bookStatus).
-
----
-
 ## 🧱 Kiến trúc & Best Practices
 
 - **Layered Architecture**
-  - `router` → `middleware` → `controller` → `service` → `Prisma (DB)`.
-
+  - Rõ ràng giữa các layer: Router → Middleware → Controller → Service → Repository (Prisma).
 - **DTO & Mapper Pattern**
-  - Dùng các DTO (`responseDtos`) + `mappers` để chuẩn hoá data trả về.
-
+  - Sử dụng DTO (`responseDtos`) + `mappers` để chuẩn hoá dữ liệu trả về cho client.
 - **Middleware-driven Validation**
   - Mọi request quan trọng đều đi qua Zod schema trước khi vào controller.
-
 - **Type-safe**
-  - TypeScript + Prisma Client sinh ra types mạnh, hạn chế bug runtime.
+  - TypeScript + Prisma Client mang lại type mạnh, giảm thiểu bug runtime.
+
+---
+
+## 🧭 Định hướng phát triển
+
+- Bổ sung API cho:
+  - Review / rating chi tiết.
+  - Favorite / bookshelf cá nhân.
+  - Social features (follow user, comment, activity feed,...).
+- Tách JWT secret, config bảo mật ra `.env`, chuẩn bị cho môi trường production.
+- Xây dựng bộ test (unit / integration) cho core services.
 
 ---
 
 ## 🙋‍♂️ Tác giả
 
 - **Tên**: duyphuongz  
-- **Mô tả**: Backend developer – yêu sách, thích xây hệ thống rõ ràng, dễ mở rộng.
+- **Vai trò**: Backend Developer – yêu sách, thích xây hệ thống rõ ràng, dễ mở rộng.
 
 ---
 
@@ -523,4 +454,4 @@ Project được phát hành dưới giấy phép **ISC**.
 
 ---
 
-**Ghi chú**: Dự án đang trong quá trình phát triển, một số tính năng (review, favorite, profile UI, v.v.) có thể chưa được expose đầy đủ qua API hoặc vẫn đang hoàn thiện.
+**Ghi chú**: Dự án vẫn đang trong quá trình hoàn thiện; một số tính năng (review, favorite, profile UI, v.v.) có thể chưa được expose đầy đủ qua API hoặc còn đang phát triển.
