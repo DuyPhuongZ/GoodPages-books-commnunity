@@ -9,6 +9,8 @@ services:
     env_file:
       - .env
     environment:
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_KEY}
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_NAME: ${DATABASE_NAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}

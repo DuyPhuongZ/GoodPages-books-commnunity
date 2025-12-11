@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import router from "./routers/router";
 import passport from "./configs/passport.config";
 import "dotenv/config"
+import { seed } from "./configs/seed";
 
 const app = express();
 const PORT = process.env.PORT;
@@ -9,7 +10,7 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// seed();
+seed();
 
 app.use(passport.initialize());
 

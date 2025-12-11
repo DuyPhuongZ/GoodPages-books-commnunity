@@ -1,6 +1,8 @@
 import prisma from "../configs/prisma.client.config"
 import { UserWithRole } from "../type";
 import { signToken } from "../utils/jwt.util";
+import { generateOtp } from "../utils/string.util";
+import { generateSendOTPTemplate, sendEmail } from "./email.service";
 
 const signUp = async ({
     username,
@@ -27,6 +29,13 @@ const signUp = async ({
                 role: true
             }
         });
+        const emailOTPTemplate = generateSendOTPTemplate(newUser.email, generateOtp());
+        const emailInfo = await sendEmail({
+            to: newUser.email,
+            subject: "Verify OTP",
+            html: emailOTPTemplate
+        });
+
         return newUser;
     } catch (error) {
         throw error;

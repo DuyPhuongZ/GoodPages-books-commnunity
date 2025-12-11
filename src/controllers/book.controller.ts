@@ -15,6 +15,7 @@ const getBooksHomepage = async (req: Request, res: Response) => {
         const safeLimit = 10;
 
         const booksPaging = await getBooksPaging(safePage * safeLimit, safeLimit);
+        console.log(">>> list:", booksPaging);
         const totalItems = (await getBooks()).length;
 
         const totalPages = Math.ceil(totalItems / safeLimit);

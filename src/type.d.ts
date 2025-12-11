@@ -32,6 +32,13 @@ interface MetaPaging {
     hasPreviousPage: boolean;
 }
 
+interface SendEmailOption {
+    to: string;
+    subject: string;
+    html?: string;
+    text?: string;
+}
+
 interface SignInResponse {
     username: string;
     role: string;
