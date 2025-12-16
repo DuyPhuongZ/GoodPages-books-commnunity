@@ -10,6 +10,7 @@ import { RestResponse, SignInResponse, UserWithRole, UserWithRoleOrNull } from "
 import { generateOtp } from "../utils/string.util";
 import { extractRecord, setNewRecord } from "../services/redis.service";
 import { generateSendOTPTemplate, sendEmail } from "../services/email.service";
+import logger from "../configs/winston.config";
 
 
 const signUpController = async (req: Request, res: Response) => {
@@ -74,13 +75,17 @@ const verifyOtpAndSignUpController = async (req: Request, res: Response) => {
         //verify otp 
         const { username, password } = await verifyOtp(otp, email);
 
+        //hash password 
+        const hashedPassword = await hashPassword(password);
+
         //create new user 
-        const newUser = await signUp({ username, password, email });
+        const newUser = await signUp({ username, password: hashedPassword, email });
 
         const accessToken = signAccessToken(newUser);
         const refreshToken = signRefreshToken(newUser);
 
         const responseData = signInMapper(newUser, accessToken, refreshToken);
+
         return res.status(HTTP_STATUS.OK).json(responseMapper({
             statusCode: 201,
             isSuccess: true,
@@ -95,8 +100,10 @@ const verifyOtpAndSignUpController = async (req: Request, res: Response) => {
 
 const signInController = async (req: Request, res: Response) => {
     const { username, password } = req.body;
+    logger.info("username:", username);
+    logger.info("password:", password);
     console.log(">>> username:", username);
-    console.log(">> password:", password);
+    console.log(">>> password:", password);
 
     const userFound: UserWithRoleOrNull = await signInByUsername(username);
     if (!userFound) {

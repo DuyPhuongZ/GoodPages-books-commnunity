@@ -9,7 +9,7 @@ const signToken = (payload: JwtPayload, expiresIn: StringValue | Number) => {
             expiresIn: expiresIn,
             issuer: "goodpages",
             audience: "user",
-            algorithms: ["HS256"]
+            algorithm: "HS256"
         } as SignOptions
     )
 }
