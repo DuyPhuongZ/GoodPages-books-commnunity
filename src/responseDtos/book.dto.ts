@@ -1,6 +1,5 @@
 import { Book, BookFormat } from "../generated/prisma/client";
 import { MetaPaging } from "../type";
-import { MetaPagingDTO } from "./meta.dto";
 
 class booksPagingResponse {
     books: Book[] | any;
@@ -33,6 +32,7 @@ class BookResponse {
     ratingsCount: number;
     reviewsCount: number;
     coverImageUrl: string | null;
+    publicId: string | null;
     authors: { name: string; id: number; photoUrl: string | null; }[];
     genres: { id: number; genresName: string; }[];
     createdAt: Date;
@@ -53,6 +53,7 @@ class BookResponse {
         ratingsCount,
         reviewsCount,
         coverImageUrl,
+        publicId,
         authors,
         genres,
         createdAt,
@@ -72,6 +73,7 @@ class BookResponse {
         ratingsCount: number,
         reviewsCount: number,
         coverImageUrl: string | null,
+        publicId: string | null,
         authors: { name: string; id: number; photoUrl: string | null; }[],
         genres: { id: number; genresName: string; }[],
         createdAt: Date,
@@ -91,6 +93,7 @@ class BookResponse {
         this.ratingsCount = ratingsCount;
         this.reviewsCount = reviewsCount;
         this.coverImageUrl = coverImageUrl;
+        this.publicId = publicId;
         this.authors = authors;
         this.genres = genres;
         this.createdAt = createdAt;

@@ -11,6 +11,6 @@ cloudinary.config({
 });
 
 // Log the configuration
-console.log(cloudinary.config());
+console.log(">>> cloudinaryConfig: ", cloudinary.config());
 
 export default cloudinary;

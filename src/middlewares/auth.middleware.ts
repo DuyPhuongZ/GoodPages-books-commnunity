@@ -36,10 +36,10 @@ const verifyOtpSignUpMiddleware = async (req: Request, res: Response, next: Next
     }
 }
 
-const validateToken = async (req: Request, res: Response, next: NextFunction) => {
+const validateToken = (req: Request, res: Response, next: NextFunction) => {
     console.log(">>> validating");
-    return await passport.authenticate("jwt", { session: false })(req: Request, res: Response, next: NextFunction);
-}
+    return passport.authenticate("jwt", { session: false })(req, res, next);
+};
 
 const changePasswordMiddleware = (req: Request, res: Response, next: NextFunction) => {
     console.log(">>> [changePasswordMiddleware] came");
@@ -62,7 +62,7 @@ const isAdmin = (req: Request, res: Response, next: NextFunction) => {
             console.log(">>> admin authorize successfully");
             next();
         } else {
-            console.log(">>> admin authorize successfully");
+            console.log(">>> admin authorize faileds");
             throw new Error("Your role is unauthorize");
         }
     } catch (error) {

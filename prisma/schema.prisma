@@ -89,6 +89,7 @@ model Book {
   reviewsCount  Int   @default(0) @map("reviews_count")
 
   coverImageUrl String? @map("cover_image_url")
+  publicId      String? @map("public_id")
 
   // Quan hệ
   authors     Author[] // nhiều tác giả

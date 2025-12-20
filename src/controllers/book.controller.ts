@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { addBook, getBooks, getBooksPaging, searchBook, searchBookSize, updateBook, updateBookImageUrl } from "../services/book.service";
+import { addBook, getBooks, getBooksPaging, searchBook, searchBookSize, updateBook, updateBookImage } from "../services/book.service";
 import { booksPagingMapper, bookWithAuthorAndGenresMapper } from "../mappers/book.mapper";
 import HTTP_STATUS from "../constants/httpStatus.constanst";
 import { responseMapper } from "../mappers/rest-response.mapper";
@@ -8,6 +8,7 @@ import prisma from "../configs/prisma.client.config";
 import { BookStatus } from "../generated/prisma/enums";
 import { MetaPaging } from "../type";
 import logger from "../configs/winston.config";
+import { uploadSingleImage } from "../services/cloudinary.service";
 
 const getBooksHomepage = async (req: Request, res: Response) => {
     try {
@@ -98,6 +99,7 @@ const createBookController = async (req: Request, res: Response) => {
             genresIdRaw
         } = req.body;
         console.log(">>> req.body:", req.body);
+        console.log(">>> req.file:", req.file);
 
         let authorsId: number[] = []; //['1','2','3'] || "1,2,3"
 
@@ -122,7 +124,7 @@ const createBookController = async (req: Request, res: Response) => {
 
         console.log(">>> genresId:", genresId);
 
-        const newBook = {
+        const newBookData = {
             title,
             description,
             publishDate,
@@ -137,20 +139,29 @@ const createBookController = async (req: Request, res: Response) => {
             genresId
         };
 
-        const result = await addBook(newBook);
+        let newBook = await addBook(newBookData);
         logger.info(">>> [createBookController]: add new book successfully");
-        console.log(">>> result:", result);
+        console.log(">>> newBook:", newBook);
 
         let filePath = "";
         if (req.file) {
             filePath = req.file.path;
+            console.log(">>> req.file:", req.file);
+            console.log(">>> filePath:", filePath);
+
+            const cloudPath = `books/${newBook.id}:${newBook.title}`
+
+            const uploadResult = await uploadSingleImage(filePath, cloudPath);
+            console.log(">>> uploadResult:", uploadResult);
+
+            newBook = await updateBookImage(newBook.id, uploadResult.url, uploadResult.publicId);
 
             fs.unlink(filePath, (err) => {
                 if (err) console.error('Error deleting local file:', err);
             });
         };
 
-        const responseData = bookWithAuthorAndGenresMapper(result);
+        const responseData = bookWithAuthorAndGenresMapper(newBook);
         return res.status(HTTP_STATUS.CREATED).json(responseMapper({
             statusCode: HTTP_STATUS.CREATED,
             isSuccess: true,
@@ -226,7 +237,7 @@ const updateBookController = async (req: Request, res: Response, next: NextFunct
                 if (err) console.error('Error deleting local file:', err);
             });
 
-            result = await updateBookImageUrl(result.id, uploadImageUrl);
+            result = await updateBookImage(result.id, uploadImageUrl, "unvailable");
         };
 
         const responseData = bookWithAuthorAndGenresMapper(result);

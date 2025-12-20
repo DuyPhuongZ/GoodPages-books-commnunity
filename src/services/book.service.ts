@@ -94,7 +94,7 @@ const addBook = async ({
             data: {
                 title,
                 description,
-                publishDate,
+                publishDate: new Date(publishDate).toISOString(),
                 language,
                 pageCount: Number(pageCount),
                 isbn10,
@@ -195,14 +195,15 @@ const updateBook = async ({
     }
 }
 
-const updateBookImageUrl = async (bookId: number, url: string) => {
+const updateBookImage = async (bookId: number, url: string, publicId: string) => {
     try {
         const result = await prisma.book.update({
             where: {
                 id: bookId
             },
             data: {
-                coverImageUrl: url
+                coverImageUrl: url,
+                publicId: publicId
             },
             include: {
                 authors: {
@@ -318,7 +319,7 @@ export {
     getBooksWithGenres,
     addBook,
     updateBook,
-    updateBookImageUrl,
+    updateBookImage,
     deleteBookByBookId,
     searchBook,
     searchBookSize
